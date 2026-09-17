@@ -22,7 +22,7 @@ If uploaded under a different owner, the default address follows that owner's us
 ## Use during class
 
 1. Open `teacher.html` on the published site before sharing your screen.
-2. Upload a UTF-8 CSV with `number` and `first_name` columns, or use student numbers only. The included `roster-template.csv` is an example with fictional names. Set absent numbers and together/apart requests using student numbers.
+2. Upload a UTF-8 CSV with `number`, `first_name`, and `preferred_name` columns, or use student numbers only. The included `roster-template.csv` is an example with fictional names. Set absent numbers and together/apart requests using student numbers.
 3. Click **Check requests**, then **Save setup in this tab**.
 4. Click **Open class screen**. A separate tab opens without copying the teacher tab's storage.
 5. Keep the teacher tab open in the same browser. Project only the class tab.
@@ -62,17 +62,18 @@ The published source and assets contain no real student data, request lists, acc
 ## CSV roster format
 
 ```csv
-number,first_name
-1,Alex
-2,Sam
-3,Maya
+number,first_name,preferred_name
+1,Alexander,Alex
+2,Samantha,Sam
+3,Maya,Maya
+4,Taylor,
 ```
 
-- Export from Excel as **CSV UTF-8 (Comma delimited)**. Header aliases such as **Student Number** and **First Name** also work.
+- Export from Excel as **CSV UTF-8 (Comma delimited)**. Header aliases such as **Student Number**, **Real First Name**, and **Preferred Name** also work. Without a header, put number, real first name and preferred name in that order. Two-column number/first-name CSVs remain supported.
 - Student numbers must be unique integers from 1 to 100. Numbering may have gaps; imported numbers are never reassigned. Duplicate first names are allowed because numbers identify students.
 - Quoted commas, escaped quotes, accented letters and other Unicode names are supported. Empty names, duplicate numbers and malformed CSV are rejected without replacing the previous roster.
 - Review the imported roster in the teacher tab, then save the setup. Use numbers for together/apart requests.
-- The class screen displays each revealed student's first name beside their number. Result CSVs and printed groups include the names.
-- Names are not sent to the class screen until their groups are revealed. Absent students' names are not sent at all.
+- The class screen displays each revealed student's **preferred name** beside their number. A blank preferred-name cell falls back to their real first name. Keeping the real first name in the third column also works. Result CSVs and printed groups use the same preferred/display names.
+- Real first names remain in the teacher tab when a different preferred name is used. Only preferred/display names are sent to the class screen, and only when their groups are revealed. Absent students' names are not sent at all.
 - Uploading a new roster is disabled once a draw is locked. Start a new draw to change it.
 - Imported names survive a refresh of the teacher tab when session storage is available; **Clear tab data** removes them.

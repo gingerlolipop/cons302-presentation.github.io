@@ -7,7 +7,7 @@ export function parseConfig(c){
  let enrolled;
  if(c.roster!=null){
   if(!Array.isArray(c.roster)||!c.roster.length||c.roster.length>100||c.count!==c.roster.length)throw Error('The CSV roster is invalid. Please upload it again.');
-  const seen=new Set();for(const student of c.roster){if(!student||!Number.isInteger(student.number)||student.number<1||student.number>100||seen.has(student.number)||typeof student.name!=='string'||!student.name.trim()||student.name.length>100)throw Error('The CSV roster has an invalid number or name. Please upload it again.');seen.add(student.number);}
+  const seen=new Set();for(const student of c.roster){if(!student||!Number.isInteger(student.number)||student.number<1||student.number>100||seen.has(student.number)||typeof student.name!=='string'||!student.name.trim()||student.name.length>100)throw Error('The CSV roster has an invalid number or name. Please upload it again.');if(student.firstName!==undefined&&(typeof student.firstName!=='string'||!student.firstName.trim()||student.firstName.length>100||typeof student.preferredName!=='string'||student.preferredName.length>100||student.name!==(student.preferredName||student.firstName)))throw Error('The CSV roster has inconsistent names. Please upload it again.');seen.add(student.number);}
   enrolled=c.roster.map(s=>s.number);
  }else enrolled=Array.from({length:c.count},(_,i)=>i+1);
  const absent=nums(c.absent,'Absent numbers');if(absent.some(n=>!enrolled.includes(n)))throw Error('Every absent number must be in the class roster.');

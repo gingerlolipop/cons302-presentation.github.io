@@ -2,7 +2,7 @@ export const $=id=>document.getElementById(id);
 export function resultsCSV(state){
  const quote=value=>'"'+String(value).replaceAll('"','""')+'"';
  const safeName=name=>/^[\s]*[=+@-]/.test(name)?"'"+name:name;
- return '\uFEFFGroup,Student number,First name\r\n'+state.groups.flatMap((g,i)=>g.map(n=>[i+1,n,quote(safeName(state.names?.[n]??''))].join(','))).join('\r\n');
+ return '\uFEFFGroup,Student number,Preferred name\r\n'+state.groups.flatMap((g,i)=>g.map(n=>[i+1,n,quote(safeName(state.names?.[n]??''))].join(','))).join('\r\n');
 }
 export function downloadCSV(state){if(!state||state.revealed!==state.groupCount)return;const a=document.createElement('a'),url=URL.createObjectURL(new Blob([resultsCSV(state)],{type:'text/csv;charset=utf-8'}));a.href=url;a.download='CONS302-presentation-groups.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 export function show(id,text){$(id).textContent=text;$(id).hidden=!text;}

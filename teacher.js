@@ -33,15 +33,15 @@ async function setupAction(save){if(busy||classroom.result)return;busy=true;show
 function renderRoster(){
  $('count').readOnly=!!uploadedRoster;
  $('count-help').textContent=uploadedRoster?'Counted from the CSV. Original student numbers are preserved.':'Student numbers run from 1 to this number.';
- $('roster-status').textContent=uploadedRoster?`${uploadedRoster.length} students imported. Their first names will appear when groups are revealed.`:'No CSV selected. You can also draw using numbers only.';
+ $('roster-status').textContent=uploadedRoster?`${uploadedRoster.length} students imported. Preferred names will appear when groups are revealed; blank preferred names use real first names.`:'No CSV selected. You can also draw using numbers only.';
  $('roster-preview').hidden=!uploadedRoster;$('remove-roster').hidden=!uploadedRoster;
  $('roster-list').replaceChildren();
- for(const student of uploadedRoster??[]){const row=document.createElement('tr'),number=document.createElement('td'),name=document.createElement('td');number.textContent=String(student.number);name.textContent=student.name;row.append(number,name);$('roster-list').append(row);}
+ for(const student of uploadedRoster??[]){const row=document.createElement('tr'),number=document.createElement('td'),first=document.createElement('td'),name=document.createElement('td');number.textContent=String(student.number);first.textContent=student.firstName??student.name;name.textContent=student.name;row.append(number,first,name);$('roster-list').append(row);}
 }
 $('csv-file').addEventListener('change',async()=>{
  const file=$('csv-file').files?.[0];if(!file||busy||classroom.result)return;
  busy=true;show('error','');show('notice','');render();
- try{if(file.size>100000)throw Error('Use a CSV file smaller than 100 KB.');const roster=parseRosterCSV(await file.text());uploadedRoster=roster;$('count').value=roster.length;persist();show('notice',`Imported ${roster.length} first names. Review the roster, then save the setup. Your numbered requests are kept.`);}
+ try{if(file.size>100000)throw Error('Use a CSV file smaller than 100 KB.');const roster=parseRosterCSV(await file.text());uploadedRoster=roster;$('count').value=roster.length;persist();show('notice',`Imported ${roster.length} students with display names. Review the roster, then save the setup. Your numbered requests are kept.`);}
  catch(e){show('error',e.message+' The previous roster was kept.');}
  finally{busy=false;$('csv-file').value='';render();}
 });

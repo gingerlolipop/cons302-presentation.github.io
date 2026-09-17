@@ -15,19 +15,28 @@ export function parseRosterCSV(input){
   cell+=ch;if(!/\s/.test(ch))start=false;
  }
  if(quoted)throw Error('CSV has an unclosed quotation mark. Export it again as CSV UTF-8.');
- endRow();if(rows.length<2)throw Error('The CSV needs a header row and at least one student. Use number,first_name.');
- const normalize=s=>s.trim().toLowerCase().replace(/[\s_-]+/g,'');
- const head=rows[0].cells.map(normalize),numberHeaders=['number','studentnumber','studentid','id'],nameHeaders=['firstname','firstnames','name','studentfirstname','studentfirstnames'];
- const ni=head.map((v,i)=>numberHeaders.includes(v)?i:-1).filter(i=>i>=0),fi=head.map((v,i)=>nameHeaders.includes(v)?i:-1).filter(i=>i>=0);
- if(ni.length!==1||fi.length!==1)throw Error('Include one number column and one first_name column. Example header: number,first_name');
- const roster=[],seen=new Set();
- for(const row of rows.slice(1)){
-  if(row.cells.length!==head.length)throw Error(`CSV line ${row.line}: the number of columns does not match the header. Put names containing commas in double quotes.`);
-  const value=row.cells[ni[0]].trim();if(!/^\d+$/.test(value)||Number(value)<1||Number(value)>100)throw Error(`CSV line ${row.line}: student number must be a whole number from 1 to 100.`);
-  const number=Number(value),name=row.cells[fi[0]].trim().replace(/[\r\n\t]+/g,' ');
+ endRow();if(!rows.length)throw Error('The CSV is empty. Use number,first_name,preferred_name.');
+ const normalize=s=>s.trim().toLowerCase().replace(/[\s_.-]+/g,'');
+ const head=rows[0].cells.map(normalize),numberHeaders=['number','numbers','studentnumber','studentnumbers','studentid','id','no','studentno','#'],nameHeaders=['firstname','firstnames','name','studentfirstname','studentfirstnames','realfirstname','realfirstnames','realname','legalfirstname'],preferredHeaders=['preferredname','preferrednames','preferredfirstname','preferredfirstnames','preferred','displayname','chosenname'];
+ let numberIndex=0,firstIndex=1,preferredIndex=head.length===3?2:-1,data=rows;
+ const hasHeader=!/^\d+$/.test(rows[0].cells[0].trim());
+ if(hasHeader){
+  const find=aliases=>head.map((v,i)=>aliases.includes(v)?i:-1).filter(i=>i>=0);
+  const ni=find(numberHeaders),fi=find(nameHeaders),pi=find(preferredHeaders);
+  if(ni.length!==1||fi.length!==1||pi.length>1)throw Error('Use the headers number,first_name,preferred_name, or omit the header and keep that column order.');
+  numberIndex=ni[0];firstIndex=fi[0];preferredIndex=pi[0]??(head.length===3&&numberIndex===0&&firstIndex===1?2:-1);data=rows.slice(1);
+ }else if(![2,3].includes(head.length))throw Error('Without headers, use two or three columns: number, first name, optional preferred name.');
+ if(!data.length)throw Error('The CSV needs at least one student after the header.');
+ const roster=[],seen=new Set(),clean=value=>value.trim().replace(/[\r\n\t]+/g,' ');
+ for(const row of data){
+  if(row.cells.length!==head.length)throw Error(`CSV line ${row.line}: the number of columns does not match the first row. Put names containing commas in double quotes.`);
+  const value=row.cells[numberIndex].trim();if(!/^\d+$/.test(value)||Number(value)<1||Number(value)>100)throw Error(`CSV line ${row.line}: student number must be a whole number from 1 to 100.`);
+  const number=Number(value),firstName=clean(row.cells[firstIndex]),preferredName=preferredIndex<0?'':clean(row.cells[preferredIndex]);
   if(seen.has(number))throw Error(`CSV line ${row.line}: student number ${number} appears more than once.`);
-  if(!name||name.length>100)throw Error(`CSV line ${row.line}: enter a first name with 1–100 characters.`);
-  seen.add(number);roster.push({number,name});
+  if(!firstName||firstName.length>100)throw Error(`CSV line ${row.line}: enter a real first name with 1–100 characters.`);
+  if(preferredName.length>100)throw Error(`CSV line ${row.line}: preferred names must be at most 100 characters.`);
+  // Keep real first names in the teacher tab. Only the display name is revealed.
+  seen.add(number);roster.push({number,firstName,preferredName,name:preferredName||firstName});
  }
  if(roster.length>100)throw Error('Use at most 100 students.');
  return roster.sort((a,b)=>a.number-b.number);
