@@ -9,7 +9,7 @@ function render(){
  $('setup-link').hidden=valid;$('draw').hidden=!state||state.drawn;$('next').hidden=!state||!state.drawn||complete;$('all').hidden=$('next').hidden;$('complete').hidden=!complete;$('result-actions').hidden=!complete;
  for(const id of ['draw','next','all'])$(id).disabled=!connected()||!!pending||counting;
  $('next').textContent=`Reveal group ${(state?.revealed??0)+1} →`;
- $('summary').textContent=state?`${state.students} students · ${state.groupCount} groups · up to 8 groups · no more than 6 per group`:'Up to 8 presentation groups, with no more than 6 students each.';
+ $('summary').textContent=state?`${state.students} students · ${state.groupCount} groups · no more than 6 per group`:'Exactly 8 presentation groups, with no more than 6 students each.';
  $('progress').textContent=pending||counting?'Mixing…':state?.drawn?`${state.revealed} / ${state.groupCount} revealed`:'Ready to grow together';
  $('groups-title').textContent=complete?'Meet your group':'Room for every perspective';
  $('connection').textContent=!valid?'Open Teacher setup to prepare a draw on this computer.':connected()?'Connected to your teacher tab.':state?'Teacher tab disconnected. Keep it open in this browser to continue.':'Waiting for the teacher tab on this computer. Open this screen using its Open class screen button.';

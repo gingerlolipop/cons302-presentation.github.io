@@ -43,7 +43,7 @@ If uploaded under a different owner, the default address follows that owner's us
 
 ## Group rules
 
-Every present student appears once. Group size is at most six, with at most eight groups (48 present students). The number of groups is the smallest needed for the present count: 42 students form 7 groups of 6; 43 form 8 groups (three groups of 6 and five of 5 when balanced). More than 48 present students are rejected; absent students do not count toward the limit. The solver tries balanced sizes first and permits uneven sizes if required by the requests. Overlapping together sets merge. Everyone in an apart set must be in a different group. Inconsistent or infeasible requests are rejected; search timeouts are reported rather than silently ignoring requests.
+Every present student appears once. There are always exactly eight nonempty groups, with at most six students per group (8–48 present students). For 42 students, balanced sizes are two groups of 6 and six groups of 5; for 43 students, three groups of 6 and five groups of 5. Fewer than 8 or more than 48 present students are rejected; absent students do not count toward these limits. The solver tries balanced sizes first and permits uneven sizes if required by the requests. Overlapping together sets merge. Everyone in an apart set must be in a different group. Inconsistent or infeasible requests are rejected; search timeouts are reported rather than silently ignoring requests.
 
 With no requests, the roster is shuffled randomly. With requests, randomized search finds a valid arrangement; it is not a uniform sample of every valid partition.
 

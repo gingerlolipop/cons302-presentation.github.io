@@ -3,7 +3,7 @@ import {parseRosterCSV} from './csv.js';
 import {$,show,downloadCSV} from './shared.js';
 const KEY='cons302-teacher-tab-v1';
 let saved=null;try{saved=JSON.parse(sessionStorage.getItem(KEY)||'null');}catch{}
-let classroom;try{classroom=new Classroom(saved?.classroom);}catch{try{classroom=new Classroom({...saved.classroom,result:null,revealed:0,revision:saved.classroom.revision+1});try{sessionStorage.setItem(KEY+':previous-rules-backup',JSON.stringify(saved));}catch{}show('error','The previous draw does not fit the current rules (maximum 8 groups, 6 students each). Your roster and requests were kept. Check and save the setup, then draw again.');}catch{classroom=new Classroom();saved=null;show('error','The saved setup could not be restored. Please enter it again.');}}
+let classroom;try{classroom=new Classroom(saved?.classroom);}catch{try{classroom=new Classroom({...saved.classroom,result:null,revealed:0,revision:saved.classroom.revision+1});try{sessionStorage.setItem(KEY+':previous-rules-backup',JSON.stringify(saved));}catch{}show('error','The previous draw does not fit the current rules (exactly 8 groups, at most 6 students each). Your roster and requests were kept. Check and save the setup, then draw again.');}catch{classroom=new Classroom();saved=null;show('error','The saved setup could not be restored. Please enter it again.');}}
 const session=saved&&/^[a-f0-9-]{36}$/.test(saved.session)?saved.session:crypto.randomUUID();
 let busy=false,dialogAction=null,channel=null,uploadedRoster=null;
 const formValue=()=>({count:Number($('count').value),absent:$('absent').value,together:$('together').value,apart:$('apart').value,roster:uploadedRoster});
