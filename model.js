@@ -1,4 +1,4 @@
-import { solve, verify } from './solver.js';
+import { solve, verify, groupCount } from './solver.js';
 export const defaultConfig=()=>({count:43,absent:'',together:'',apart:'',roster:null});
 export function parseConfig(c){
  if(!c||typeof c!=='object'||!Number.isInteger(c.count)||c.count<1||c.count>100)throw Error('Enter a whole number of students between 1 and 100.');
@@ -11,7 +11,7 @@ export function parseConfig(c){
   enrolled=c.roster.map(s=>s.number);
  }else enrolled=Array.from({length:c.count},(_,i)=>i+1);
  const absent=nums(c.absent,'Absent numbers');if(absent.some(n=>!enrolled.includes(n)))throw Error('Every absent number must be in the class roster.');
- const roster=enrolled.filter(n=>!absent.includes(n));if(!roster.length)throw Error('At least one student must be present.');
+ const roster=enrolled.filter(n=>!absent.includes(n));if(!roster.length)throw Error('At least one student must be present.');groupCount(roster.length);
  const rules=(text,label)=>text.split('\n').flatMap((line,i)=>{if(!line.trim())return [];const a=nums(line,label+' line '+(i+1));if(a.length<2)throw Error(label+' line '+(i+1)+': enter at least two numbers.');for(const n of a){if(!enrolled.includes(n))throw Error(label+': student '+n+' is not in the class roster.');if(absent.includes(n))throw Error(label+': student '+n+' is absent. Remove them from this request.');}return [a];});
  return {n:c.count,roster,together:rules(c.together,'Keep together'),apart:rules(c.apart,'Keep apart')};
 }
@@ -24,5 +24,5 @@ export class Classroom {
  reset(){this.result=null;this.revealed=0;this.revision++;}
  clear(){this.config=defaultConfig();this.reset();}
  snapshot(){return {config:this.config,result:this.result,revealed:this.revealed,revision:this.revision};}
- publicState(){const n=parseConfig(this.config).roster.length,groups=this.result?structuredClone(this.result.groups.slice(0,this.revealed)):[],revealed=new Set(groups.flat()),names={};for(const student of this.config.roster??[])if(revealed.has(student.number))names[student.number]=student.name;return {students:n,groupCount:Math.ceil(n/5),drawn:!!this.result,revealed:this.revealed,groups,names,revision:this.revision};}
+ publicState(){const n=parseConfig(this.config).roster.length,groups=this.result?structuredClone(this.result.groups.slice(0,this.revealed)):[],revealed=new Set(groups.flat()),names={};for(const student of this.config.roster??[])if(revealed.has(student.number))names[student.number]=student.name;return {students:n,groupCount:groupCount(n),drawn:!!this.result,revealed:this.revealed,groups,names,revision:this.revision};}
 }

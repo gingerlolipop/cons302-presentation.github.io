@@ -3,7 +3,7 @@ import {parseRosterCSV} from './csv.js';
 import {$,show,downloadCSV} from './shared.js';
 const KEY='cons302-teacher-tab-v1';
 let saved=null;try{saved=JSON.parse(sessionStorage.getItem(KEY)||'null');}catch{}
-let classroom;try{classroom=new Classroom(saved?.classroom);}catch{classroom=new Classroom();saved=null;show('error','The saved setup could not be restored. Please enter it again.');}
+let classroom;try{classroom=new Classroom(saved?.classroom);}catch{try{classroom=new Classroom({...saved.classroom,result:null,revealed:0,revision:saved.classroom.revision+1});try{sessionStorage.setItem(KEY+':previous-rules-backup',JSON.stringify(saved));}catch{}show('error','The previous draw does not fit the current rules (maximum 8 groups, 6 students each). Your roster and requests were kept. Check and save the setup, then draw again.');}catch{classroom=new Classroom();saved=null;show('error','The saved setup could not be restored. Please enter it again.');}}
 const session=saved&&/^[a-f0-9-]{36}$/.test(saved.session)?saved.session:crypto.randomUUID();
 let busy=false,dialogAction=null,channel=null,uploadedRoster=null;
 const formValue=()=>({count:Number($('count').value),absent:$('absent').value,together:$('together').value,apart:$('apart').value,roster:uploadedRoster});
@@ -50,7 +50,7 @@ $('form').addEventListener('submit',e=>{e.preventDefault();void setupAction(true
 for(const id of ['count','absent','together','apart'])$(id).addEventListener('input',()=>{show('error','');show('notice','');persist();render();});
 $('download').onclick=()=>downloadCSV(classroom.publicState());
 function confirm(action){dialogAction=action;$('confirm-title').textContent=action==='clear'?'Clear all tab data?':'Start a new draw?';$('confirm-description').textContent=action==='clear'?'This removes the imported names, requests and current draw from this teacher tab. Save any results you need first.':'This clears the current groups while keeping your requests. Save any results you need first.';$('confirm-dialog').showModal();}
-$('reset').onclick=()=>confirm('reset');$('clear').onclick=()=>confirm('clear');$('cancel').onclick=()=>$('confirm-dialog').close();$('confirm').onclick=()=>{if(dialogAction==='clear'){classroom.clear();fill(defaultConfig());try{sessionStorage.removeItem(KEY);}catch{}show('notice','Names, requests and draw cleared from this teacher tab.');}else{classroom.reset();persist();show('notice','The draw is cleared. Your requests are kept.');}show('error','');render();send();$('confirm-dialog').close();};
+$('reset').onclick=()=>confirm('reset');$('clear').onclick=()=>confirm('clear');$('cancel').onclick=()=>$('confirm-dialog').close();$('confirm').onclick=()=>{if(dialogAction==='clear'){classroom.clear();fill(defaultConfig());try{sessionStorage.removeItem(KEY);sessionStorage.removeItem(KEY+':previous-rules-backup');}catch{}show('notice','Names, requests and draw cleared from this teacher tab.');}else{classroom.reset();persist();show('notice','The draw is cleared. Your requests are kept.');}show('error','');render();send();$('confirm-dialog').close();};
 window.addEventListener('beforeunload',e=>{if(dirty()||classroom.result){e.preventDefault();e.returnValue='';}});
 window.addEventListener('pagehide',e=>{if(!e.persisted)channel?.close();});
 render();persist();send();
